@@ -1,6 +1,6 @@
 [package]
 name = "systemd-duration"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 description = "Convert systemd style time durations into other formats"
 readme = "README.md"

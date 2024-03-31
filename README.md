@@ -10,3 +10,6 @@ This library can convert a systemd duration string to the following:
 See the examples directory for code examples.
 
 [systemd duration format]: https://www.freedesktop.org/software/systemd/man/latest/systemd.time.html
+[std::time::Duration]: https://doc.rust-lang.org/std/time/struct.Duration.html
+[time::Duration]: https://docs.rs/time/latest/time/struct.Duration.html
+[chrono::TimeDelta]: https://docs.rs/chrono/latest/chrono/struct.TimeDelta.html
