@@ -261,7 +261,7 @@ macro_rules! impl_parse {
         impl_parse!($modname, $typename, ::$modname::$typename);
     };
     ($modname:ident, $typename:ident, $type:ty) => {
-        #[doc = concat!("Parsing systemd-style durations into structs used by [`", stringify!($modname), "`][::", stringify!($modname), "]")]
+        #[doc = concat!("Parsing systemd-style durations into structs used by [`", stringify!($typename), "`][", stringify!($type), "]")]
         pub mod $modname {
             use super::*;
 

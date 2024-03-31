@@ -3,9 +3,9 @@
 //! It can parse durations into the following formats:
 //! * [`time::Duration`][::time::Duration] (with the `with-time` feature)
 //! * [`chrono::TimeDelta`][::chrono::TimeDelta] (with the `with-chrono` feature)
-//! * [`std::time::Duration`][std::time::Duration]
+//! * [`std::time::Duration`]
 //!
-//! It uses the [`nom`][nom] library to parse durations.
+//! It uses the [`nom`] library to parse durations.
 //!
 //! # Example
 //! ```
@@ -517,11 +517,11 @@ mod tests {
 
     #[test]
     fn test_time_duration_parse_year() {
-        let duration_compare = ::time::Duration::weeks(52) +
-            ::time::Duration::days(1) +
-            ::time::Duration::hours(5) +
-            ::time::Duration::minutes(49) +
-            ::time::Duration::seconds(12);
+        let duration_compare = ::time::Duration::weeks(52)
+            + ::time::Duration::days(1)
+            + ::time::Duration::hours(5)
+            + ::time::Duration::minutes(49)
+            + ::time::Duration::seconds(12);
 
         if let Ok(duration) = parser::time::parse("1 years") {
             assert_eq!(duration_compare, duration);
@@ -580,11 +580,11 @@ mod tests {
 
     #[test]
     fn test_time_duration_parse_month() {
-        let duration_compare = ::time::Duration::weeks(4) +
-            ::time::Duration::days(2) +
-            ::time::Duration::hours(10) +
-            ::time::Duration::minutes(29) +
-            ::time::Duration::seconds(6);
+        let duration_compare = ::time::Duration::weeks(4)
+            + ::time::Duration::days(2)
+            + ::time::Duration::hours(10)
+            + ::time::Duration::minutes(29)
+            + ::time::Duration::seconds(6);
 
         if let Ok(duration) = parser::time::parse("1 months") {
             assert_eq!(duration_compare, duration);
@@ -981,11 +981,11 @@ mod tests {
 
     #[test]
     fn test_chrono_duration_parse_year() {
-        let duration_compare = ::chrono::TimeDelta::weeks(52) +
-            ::chrono::TimeDelta::days(1) +
-            ::chrono::TimeDelta::hours(5) +
-            ::chrono::TimeDelta::minutes(49) +
-            ::chrono::TimeDelta::seconds(12);
+        let duration_compare = ::chrono::TimeDelta::weeks(52)
+            + ::chrono::TimeDelta::days(1)
+            + ::chrono::TimeDelta::hours(5)
+            + ::chrono::TimeDelta::minutes(49)
+            + ::chrono::TimeDelta::seconds(12);
 
         if let Ok(duration) = parser::chrono::parse("1 years") {
             assert_eq!(duration_compare, duration);
@@ -1044,11 +1044,11 @@ mod tests {
 
     #[test]
     fn test_chrono_duration_parse_month() {
-        let duration_compare = ::chrono::TimeDelta::weeks(4) +
-            ::chrono::TimeDelta::days(2) +
-            ::chrono::TimeDelta::hours(10) +
-            ::chrono::TimeDelta::minutes(29) +
-            ::chrono::TimeDelta::seconds(6);
+        let duration_compare = ::chrono::TimeDelta::weeks(4)
+            + ::chrono::TimeDelta::days(2)
+            + ::chrono::TimeDelta::hours(10)
+            + ::chrono::TimeDelta::minutes(29)
+            + ::chrono::TimeDelta::seconds(6);
 
         if let Ok(duration) = parser::chrono::parse("1 months") {
             assert_eq!(duration_compare, duration);
@@ -1447,7 +1447,8 @@ mod tests {
 
     #[test]
     fn test_chrono_duration_negative() {
-        let duration_compare = ::chrono::TimeDelta::nanoseconds(-1) + ::chrono::TimeDelta::seconds(-1);
+        let duration_compare =
+            ::chrono::TimeDelta::nanoseconds(-1) + ::chrono::TimeDelta::seconds(-1);
         if let Ok(duration) = parser::chrono::parse("-1s-1ns") {
             assert_eq!(duration_compare, duration);
         } else {

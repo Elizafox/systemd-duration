@@ -17,32 +17,34 @@ pub enum Duration {
     Nanosecond(i64),
 }
 
-#[derive(Clone, Debug)]
 /// A container of durations, which when summed give the total duration.
+#[derive(Clone, Debug)]
 pub struct Container(Vec<Duration>);
 
 impl Container {
+    /// Create a new container object from the given durations.
     #[must_use]
     pub fn new(durations: Vec<Duration>) -> Self {
         Self(durations)
     }
 }
 
+/// Just a place to shove conversion factors.
 #[allow(clippy::module_name_repetitions)]
 struct Convert;
 
-// Systemd uses 365.25 (Julian average) which has an error of 0.0075 days per year, or about
-// one in every 133⅓ years.
+// Systemd uses 365.25 (Julian average) which has an error of 0.0075 days per year relative to the
+// Gregorian calendar, or about one in every 133⅓ years.
+//
 // For the durations systemd deals with, this is not a practical issue in reality. However,
-// Because the deviation is small, there's no harm in being more accurate vs. being
-// "incompatible."
+// because the deviation is small, there's no harm in being more accurate vs. being "incompatible."
 impl Convert {
     const SECS_PER_MIN: f64 = 60.0;
     const SECS_PER_HOUR: f64 = 60.0 * Self::SECS_PER_MIN;
     const SECS_PER_DAY: f64 = 24.0 * Self::SECS_PER_HOUR;
     const SECS_PER_WEEK: f64 = 7.0 * Self::SECS_PER_DAY;
-    const SECS_PER_MONTH: f64 = 30.436_875_f64 * Self::SECS_PER_DAY;
-    const SECS_PER_YEAR: f64 = 365.2425f64 * Self::SECS_PER_DAY;
+    const SECS_PER_MONTH: f64 = 30.436_875f64 * Self::SECS_PER_DAY;
+    const SECS_PER_YEAR: f64 = 365.2_425f64 * Self::SECS_PER_DAY;
     const NANOS_PER_SEC: f64 = 1_000_000_000.0;
     const NANOS_PER_MILLI: f64 = Self::NANOS_PER_SEC / 1_000.0;
     const NANOS_PER_MICRO: f64 = Self::NANOS_PER_MILLI / 1_000.0;
@@ -124,8 +126,8 @@ pub mod stdtime {
     }
 }
 
+/// Conversions from [`Duration`] into [`chrono::TimeDelta`][::chrono::TimeDelta]
 #[cfg(feature = "with-chrono")]
-/// Conversions from [`Duration`] into [`chrono::TimeDelta`]
 pub mod chrono {
     use super::{error, Container, Convert, Duration, TryFrom};
 
@@ -155,7 +157,7 @@ pub mod chrono {
 
     impl TryFrom<Container> for ::chrono::TimeDelta {
         type Error = error::Error;
-        
+
         /// Convert a [`Duration`] into a [`::chrono::TimeDelta`]
         fn try_from(durations: Container) -> Result<Self, Self::Error> {
             let mut duration_sum = Self::new(0, 0).unwrap();
@@ -195,8 +197,8 @@ pub mod chrono {
     }
 }
 
-#[cfg(feature = "with-time")]
 /// Conversions from [`Duration`] into [`::time::Duration`]
+#[cfg(feature = "with-time")]
 pub mod time {
     use super::{error, Container, Convert, Duration, TryFrom};
 

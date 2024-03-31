@@ -1,5 +1,5 @@
-use systemd_duration::{error, stdtime::parse};
 use std::time::Duration;
+use systemd_duration::{error, stdtime::parse};
 
 fn fail_parse() -> Result<Duration, error::Error> {
     parse("3x")?;
