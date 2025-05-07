@@ -6,7 +6,7 @@ description = "Convert systemd style time durations into other formats"
 readme = "README.md"
 repository = "https://github.com/Elizafox/systemd-duration"
 license = "CC0-1.0"
-rust-version = "1.67.1"
+rust-version = "1.74.0"
 authors = ["Elizabeth Myers"]
 categories = ["date-and-time", "parser-implementations"]
 keywords = ["systemd", "duration", "time"]
@@ -17,10 +17,10 @@ with-chrono = ["dep:chrono"]
 with-time = ["dep:time"]
 
 [dependencies]
-nom = { version = "7.1", features = ["alloc"] }
+nom = { version = "8.0", features = ["alloc"] }
 chrono = { version = "0.4", optional = true }
 time = { version = "0.3", optional = true }
-thiserror = "1"
+thiserror = "2.0"
 
 [dev-dependencies]
 chrono = "0.4"

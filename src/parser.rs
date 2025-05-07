@@ -5,9 +5,9 @@ use nom::{
     combinator::{all_consuming, complete, cut, map, opt, recognize},
     error::{ErrorKind::TooLarge, ParseError},
     multi::many1,
-    sequence::{delimited, tuple},
+    sequence::delimited,
     Err::Failure,
-    Finish, IResult,
+    Finish, IResult, Parser,
 };
 
 use crate::{
@@ -33,25 +33,23 @@ enum DurationUnit {
 // NOTE: we don't accept full float syntax. Systemd doesn't, so this isn't a problem.
 fn float(input: &str) -> IResult<&str, f64> {
     map(
-        recognize(tuple((
-            opt(one_of("+-")),
-            opt(tuple((digit0, char('.')))),
-            digit1,
-        ))),
+        recognize((opt(one_of("+-")), opt((digit0, char('.'))), digit1)),
         |s: &str| s.parse::<f64>().unwrap(),
-    )(input)
+    )
+    .parse(input)
 }
 
 fn timespan_word(input: &str) -> IResult<&str, &str> {
     // XXX - not fantastic but don't have a better way right now
-    recognize(many1(one_of("Macdehiklmnorstuwyµ")))(input)
+    recognize(many1(one_of("Macdehiklmnorstuwyµ"))).parse(input)
 }
 
 // This is used to get the longest possible match for a string
-fn all_consuming_tag<'a, E: ParseError<&'a str>>(
+pub fn all_consuming_tag<'a, E>(
     t: &'a str,
-) -> impl FnMut(&'a str) -> IResult<&'a str, &'a str, E>
+) -> impl Parser<&'a str, Output = &'a str, Error = E> + 'a
 where
+    E: ParseError<&'a str> + 'a,
 {
     all_consuming(tag(t))
 }
@@ -66,7 +64,8 @@ fn timespan_period_years(input: &str) -> IResult<&str, DurationUnit> {
             all_consuming_tag("y"),
         )),
         |_| DurationUnit::Year,
-    )(input)
+    )
+    .parse(input)
 }
 
 fn timespan_period_months(input: &str) -> IResult<&str, DurationUnit> {
@@ -79,7 +78,8 @@ fn timespan_period_months(input: &str) -> IResult<&str, DurationUnit> {
             all_consuming_tag("M"),
         )),
         |_| DurationUnit::Month,
-    )(input)
+    )
+    .parse(input)
 }
 
 fn timespan_period_weeks(input: &str) -> IResult<&str, DurationUnit> {
@@ -92,7 +92,8 @@ fn timespan_period_weeks(input: &str) -> IResult<&str, DurationUnit> {
             all_consuming_tag("w"),
         )),
         |_| DurationUnit::Week,
-    )(input)
+    )
+    .parse(input)
 }
 
 fn timespan_period_days(input: &str) -> IResult<&str, DurationUnit> {
@@ -103,7 +104,8 @@ fn timespan_period_days(input: &str) -> IResult<&str, DurationUnit> {
             all_consuming_tag("d"),
         )),
         |_| DurationUnit::Day,
-    )(input)
+    )
+    .parse(input)
 }
 
 fn timespan_period_hours(input: &str) -> IResult<&str, DurationUnit> {
@@ -116,7 +118,8 @@ fn timespan_period_hours(input: &str) -> IResult<&str, DurationUnit> {
             all_consuming_tag("h"),
         )),
         |_| DurationUnit::Hour,
-    )(input)
+    )
+    .parse(input)
 }
 
 fn timespan_period_minutes(input: &str) -> IResult<&str, DurationUnit> {
@@ -129,7 +132,8 @@ fn timespan_period_minutes(input: &str) -> IResult<&str, DurationUnit> {
             all_consuming_tag("m"),
         )),
         |_| DurationUnit::Minute,
-    )(input)
+    )
+    .parse(input)
 }
 
 fn timespan_period_seconds(input: &str) -> IResult<&str, DurationUnit> {
@@ -142,7 +146,8 @@ fn timespan_period_seconds(input: &str) -> IResult<&str, DurationUnit> {
             all_consuming_tag("s"),
         )),
         |_| DurationUnit::Second,
-    )(input)
+    )
+    .parse(input)
 }
 
 fn timespan_period_milliseconds(input: &str) -> IResult<&str, DurationUnit> {
@@ -155,7 +160,8 @@ fn timespan_period_milliseconds(input: &str) -> IResult<&str, DurationUnit> {
             all_consuming_tag("ms"),
         )),
         |_| DurationUnit::Millisecond,
-    )(input)
+    )
+    .parse(input)
 }
 
 fn timespan_period_microseconds(input: &str) -> IResult<&str, DurationUnit> {
@@ -172,7 +178,8 @@ fn timespan_period_microseconds(input: &str) -> IResult<&str, DurationUnit> {
             all_consuming_tag("us"),
         )),
         |_| DurationUnit::Microsecond,
-    )(input)
+    )
+    .parse(input)
 }
 
 fn timespan_period_nanoseconds(input: &str) -> IResult<&str, DurationUnit> {
@@ -185,7 +192,8 @@ fn timespan_period_nanoseconds(input: &str) -> IResult<&str, DurationUnit> {
             all_consuming_tag("ns"),
         )),
         |_| DurationUnit::Nanosecond,
-    )(input)
+    )
+    .parse(input)
 }
 
 // Match a timespan period, consisting of an entire word
@@ -203,7 +211,8 @@ fn timespan_period(input: &str) -> IResult<&str, DurationUnit> {
         timespan_period_milliseconds,
         timespan_period_microseconds,
         timespan_period_nanoseconds,
-    )))(unit)?;
+    )))
+    .parse(unit)?;
 
     Ok((input, result))
 }
@@ -211,7 +220,7 @@ fn timespan_period(input: &str) -> IResult<&str, DurationUnit> {
 // Returns a fragment of the duration
 #[inline(never)]
 fn duration_fragment(input: &str) -> IResult<&str, Duration> {
-    let (input, count) = delimited(multispace0, float, multispace0)(input)?;
+    let (input, count) = delimited(multispace0, float, multispace0).parse(input)?;
     let (input, unit) = timespan_period(input)?;
     let val = match unit {
         DurationUnit::Year => Duration::Year(count),
@@ -240,12 +249,13 @@ fn duration_fragment(input: &str) -> IResult<&str, Duration> {
 
 // If nothing else is input, just interpret it as seconds.
 fn raw_seconds(input: &str) -> IResult<&str, Duration> {
-    let (input, seconds) = all_consuming(delimited(multispace0, float, multispace0))(input)?;
+    let (input, seconds) =
+        all_consuming(delimited(multispace0, float, multispace0)).parse(input)?;
     Ok((input, Duration::Second(seconds)))
 }
 
 fn full_duration(input: &str) -> IResult<&str, Vec<Duration>> {
-    all_consuming(many1(duration_fragment))(input)
+    all_consuming(many1(duration_fragment)).parse(input)
 }
 
 // Parse a duration
@@ -253,7 +263,8 @@ fn duration(input: &str) -> IResult<&str, Container> {
     complete(cut(alt((
         map(raw_seconds, |v| Container::new(vec![v])),
         map(full_duration, Container::new),
-    ))))(input)
+    ))))
+    .parse(input)
 }
 
 macro_rules! impl_parse {
