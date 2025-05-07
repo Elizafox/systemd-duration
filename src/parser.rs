@@ -56,6 +56,7 @@ fn timespan_word(input: &str) -> IResult<&str, &str> {
 }
 
 // This is used to get the longest possible match for a string
+#[must_use]
 pub fn all_consuming_tag<'a, E>(
     t: &'a str,
 ) -> impl Parser<&'a str, Output = &'a str, Error = E> + 'a
@@ -283,11 +284,36 @@ macro_rules! impl_parse {
         impl_parse!($modname, $typename, ::$modname::$typename);
     };
     ($modname:ident, $typename:ident, $type:ty) => {
-        #[doc = concat!("Parsing systemd-style durations into structs used by [`", stringify!($typename), "`][", stringify!($type), "]")]
+        #[doc = concat!(
+            "Parsing systemd-style durations into structs used by [`",
+            stringify!($typename),
+            "`][",
+            stringify!($type), "]"
+        )]
         pub mod $modname {
             use super::*;
 
-            #[doc = concat!("Parse a duration string into a [`", stringify!($typename), "`][", stringify!($type), "]")]
+            #[doc = concat!(
+                "Parse a duration string into a [`",
+                stringify!($typename),
+                "`][",
+                stringify!($type),
+                "].\n\n",
+                "# Errors\n\n",
+                "Returns [`error::Error`] if the input string is not a valid duration format\n",
+                "or cannot be converted into a [`",
+                stringify!($typename),
+                "`][",
+                stringify!($type),
+                "]."
+            )]
+            #[doc = concat!(
+                "Parse a duration string into a [`",
+                stringify!($typename),
+                "`][",
+                stringify!($type),
+                "]"
+            )]
             pub fn parse(input: &str) -> Result<$type, error::Error> {
                 let dur = duration(input).map_err(|e| e.to_owned()).finish()?;
                 let ret = dur.1.try_into()?;

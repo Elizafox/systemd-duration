@@ -35,7 +35,7 @@ pub struct Container(Vec<Duration>);
 impl Container {
     /// Create a new container object from the given durations.
     #[must_use]
-    pub fn new(durations: Vec<Duration>) -> Self {
+    pub const fn new(durations: Vec<Duration>) -> Self {
         Self(durations)
     }
 }
@@ -54,8 +54,8 @@ impl Convert {
     const SECS_PER_HOUR: f64 = 60.0 * Self::SECS_PER_MIN;
     const SECS_PER_DAY: f64 = 24.0 * Self::SECS_PER_HOUR;
     const SECS_PER_WEEK: f64 = 7.0 * Self::SECS_PER_DAY;
-    const SECS_PER_MONTH: f64 = 30.436_875f64 * Self::SECS_PER_DAY;
-    const SECS_PER_YEAR: f64 = 365.2_425f64 * Self::SECS_PER_DAY;
+    const SECS_PER_MONTH: f64 = 30.436_875_f64 * Self::SECS_PER_DAY;
+    const SECS_PER_YEAR: f64 = 365.242_5_f64 * Self::SECS_PER_DAY;
     const NANOS_PER_SEC: f64 = 1_000_000_000.0;
     const NANOS_PER_MILLI: f64 = Self::NANOS_PER_SEC / 1_000.0;
     const NANOS_PER_MICRO: f64 = Self::NANOS_PER_MILLI / 1_000.0;
@@ -72,17 +72,31 @@ pub mod stdtime {
                 return Err(error::Error::DurationOverflow);
             }
 
-            std::time::Duration::from_secs_f64(($secs_per_interval) * ($count))
+            ::std::time::Duration::from_secs_f64(($secs_per_interval) * ($count))
         }};
     }
 
     macro_rules! duration_lt_second {
         ($nanos_per_interval:expr, $count:expr) => {{
-            let nanos = ($nanos_per_interval) * ($count);
-            if nanos.is_infinite() || nanos > i64::MAX as f64 || nanos < 0.0f64 {
+            let nanos: f64 = ($nanos_per_interval) * ($count);
+            if !nanos.is_finite() {
                 return Err(error::Error::DurationOverflow);
             }
-            std::time::Duration::from_nanos(nanos.round() as u64)
+
+            let rounded = nanos.round();
+            #[allow(clippy::cast_possible_truncation)]
+            let int_nanos = rounded as i64;
+
+            // Ensure the conversion didn't silently overflow or truncate
+            #[allow(clippy::cast_precision_loss)]
+            if (int_nanos as f64 - rounded).abs() > f64::EPSILON {
+                return Err(error::Error::DurationOverflow);
+            }
+
+            match u64::try_from(int_nanos) {
+                Ok(valid) => ::std::time::Duration::from_nanos(valid),
+                Err(_) => return Err(error::Error::DurationOverflow),
+            }
         }};
     }
 

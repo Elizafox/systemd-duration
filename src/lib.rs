@@ -21,7 +21,7 @@
 //! # Example
 //! ```
 //! let td = systemd_duration::stdtime::parse("1d3s").expect("Could not parse duration");
-//! assert_eq!(td, std::time::Duration::from_secs(86403));
+//! assert_eq!(td, std::time::Duration::from_secs(86_403));
 //! ```
 //!
 //! [systemd-style durations]: https://www.freedesktop.org/software/systemd/man/latest/systemd.time.html
@@ -47,7 +47,7 @@ mod tests {
     fn test_stdtime_duration_parse_year() {
         use std::time;
 
-        let duration_compare = time::Duration::from_secs(31556952);
+        let duration_compare = time::Duration::from_secs(31_556_952);
 
         if let Ok(duration) = parser::stdtime::parse("1 years") {
             assert_eq!(duration_compare, duration);
@@ -108,7 +108,7 @@ mod tests {
     fn test_stdtime_duration_parse_month() {
         use std::time;
 
-        let duration_compare = time::Duration::from_secs(2629746);
+        let duration_compare = time::Duration::from_secs(2_629_746);
 
         if let Ok(duration) = parser::stdtime::parse("1 months") {
             assert_eq!(duration_compare, duration);
@@ -151,7 +151,7 @@ mod tests {
     fn test_stdtime_duration_parse_week() {
         use std::time;
 
-        let duration_compare = time::Duration::from_secs(604800);
+        let duration_compare = time::Duration::from_secs(604_800);
 
         if let Ok(duration) = parser::stdtime::parse("1 weeks") {
             assert_eq!(duration_compare, duration);
@@ -194,7 +194,7 @@ mod tests {
     fn test_stdtime_duration_parse_day() {
         use std::time;
 
-        let duration_compare = time::Duration::from_secs(86400);
+        let duration_compare = time::Duration::from_secs(86_400);
 
         if let Ok(duration) = parser::stdtime::parse("1 days") {
             assert_eq!(duration_compare, duration);
