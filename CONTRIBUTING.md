@@ -24,20 +24,16 @@ You must ensure the following before submitting a pull request:
 All new files must include a header similar to this:
 
 ```rust
-/* SPDX-License-Identifier: CC0-1.0
- *
- * <path to file>
- *
- * This file is a component of systemd-duration by Elizabeth Myers.
- * The author of this file is <author> and has agreed to the below waiver.
- *
- * To the extent possible under law, the person who associated CC0 with
- * systemd-duration has waived all copyright and related or neighboring rights
- * to systemd-duration.
- *
- * You should have received a copy of the CC0 legalcode along with this
- * work.  If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
- */
+// SPDX-License-Identifier: CC0-1.0
+//
+// This file is part of systemd-duration.
+//
+// To the extent possible under law, the author(s) have dedicated all copyright
+// and related and neighboring rights to this software to the public domain
+// worldwide. This software is distributed without any warranty.
+//
+// You should have received a copy of the CC0 Public Domain Dedication along
+// with this software. If not, see <https://creativecommons.org/publicdomain/zero/1.0/>.
 
 ```
 
