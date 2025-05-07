@@ -57,7 +57,7 @@ fn timespan_word(input: &str) -> IResult<&str, &str> {
 
 // This is used to get the longest possible match for a string
 #[must_use]
-pub fn all_consuming_tag<'a, E>(
+fn all_consuming_tag<'a, E>(
     t: &'a str,
 ) -> impl Parser<&'a str, Output = &'a str, Error = E> + 'a
 where
